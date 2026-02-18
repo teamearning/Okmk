@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>𝙉𝙀𝙒 𝟮𝟬𝟮𝟲 𝙃𝘼𝘾𝙆 • WEBVIEW</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* GLOBAL RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Orbitron',sans-serif;
+}
+
+/* MAIN BODY: radial background exactly as original + webview container */
+body{
+  background:radial-gradient(circle at 30% 10%,#001e2b,#000a12);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* FULLSCREEN WEBVIEW SECTION — EXACT BACKGROUND, STRETCHES TO FIT */
+.fullscreen-webview {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  background: transparent; /* lets body gradient shine through if iframe has transparent? but we force iframe to fill */
+  border: none;
+  overflow: hidden;
+}
+
+/* THE IFRAME — ABSOLUTE FULL COVER, NO BORDER, TOP/LEFT 0 */
+#webview-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent; /* in case the loaded page has transparent areas, parent gradient shows */
+}
+
+/* FLOATING CIRCLE (exact same as original, but sits on top of webview) */
+.modx-wrapper{
+  position:absolute;
+  top:140px;
+  left:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:grab;
+  z-index:1000;
+  user-select:none;
+  pointer-events: auto; /* ensure clickable on top of iframe */
+}
+
+.particle-ring{
+  position:relative;
+  width:70px;
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:pulse 2s infinite ease-in-out;
+}
+
+.particle-ring::before{
+  content:"";
+  position:absolute;
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  background:conic-gradient(#00ffff,#008cff,#00ffcc,#00ffff);
+  animation:rotate 4s linear infinite;
+  filter:blur(6px);
+}
+
+.particle-ring::after{
+  content:"";
+  position:absolute;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#00131f;
+  box-shadow:inset 0 0 25px #00ffff70,0 0 20px #00ffff80;
+}
+
+.modx-img{
+  position:relative;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  object-fit:cover;
+  z-index:2;
+}
+
+@keyframes rotate{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+}
+
+/* PANEL (draggable, on top) */
+.panel{
+  position:absolute;
+  width:260px;
+  background:linear-gradient(180deg,#08222e,#02121c);
+  border-radius:24px;
+  border:1px solid rgba(0,255,255,0.45);
+  box-shadow:0 0 40px #00ffff40,inset 0 0 30px #00ffff20;
+  padding:18px;
+  display:none;
+  backdrop-filter:blur(18px);
+  color:white;
+  z-index:2000;
+  cursor:grab;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.injector-title{
+  font-size:14px;
+  font-weight:900;
+  background:linear-gradient(90deg,#00ffff,#00aaff,#00ffff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 12px #00ffff;
+  letter-spacing:2px;
+}
+
+.close{
+  cursor:pointer;
+  width:26px;
+  height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:#0a2b36;
+  color:#00ffff;
+  box-shadow:0 0 10px #00ffff80;
+}
+
+.prediction{
+  text-align:center;
+  color:#00f7ff;
+  font-size:11px;
+  letter-spacing:4px;
+  margin-bottom:8px;
+}
+
+.result{
+  text-align:center;
+  font-size:40px;
+  font-weight:900;
+  text-shadow:0 0 15px #00ffff,0 0 40px #008cff;
+  margin-bottom:12px;
+  transition:transform .2s ease;
+}
+
+.live{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  color:#9ef0ff;
+  margin-bottom:16px;
+  background:#001c28;
+  padding:6px 10px;
+  border-radius:30px;
+  border:1px solid cyan;
+}
+
+.period{
+  margin-top:10px;
+  background:linear-gradient(145deg,#aaffff,#e0ffff);
+  color:#001018;
+  padding:10px 6px;
+  border-radius:14px;
+  font-size:11px;
+  text-align:center;
+  font-weight:800;
+}
+
+.timer{
+  margin-top:6px;
+  text-align:center;
+  font-size:12px;
+  color:#00ffff;
+}
+</style>
+</head>
+<body>
+
+<!-- FULLSCREEN WEBVIEW IFRAME (example.com) -->
+<div class="fullscreen-webview">
+  <iframe id="webview-iframe" src="https://bdg7749.com/#/register?invitationCode=2144720673195" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation" allowfullscreen></iframe>
+</div>
+
+<!-- FLOATING CIRCLE (same as original, sits above iframe) -->
+<div class="modx-wrapper" id="circle">
+  <div class="particle-ring">
+    <img src="https://i.ibb.co/4ZDFDdNh/ryomensukuna-abx8.png" class="modx-img" alt="hack-icon">
+  </div>
+</div>
+
+<!-- DRAGGABLE INFO PANEL (exact copy) -->
+<div class="panel" id="panel">
+  <div class="top">
+    <div class="injector-title">⚡ 𝙉𝙀𝙒 𝟮𝟬𝟮𝟲 𝙃𝘼𝘾𝙆</div>
+    <div class="close" id="closeBtn">✖</div>
+  </div>
+  <div class="prediction">☠️ VIP NEW TOOL 🔥</div>
+  <div class="result" id="resultText">BIG 9</div>
+  <div class="live">
+    <span>🔴 LIVE</span>
+    <span>🛡️ ULTRA SECURE</span>
+  </div>
+  <div class="period" id="periodText">Period: --</div>
+  <div class="timer" id="timerText">00:60</div>
+</div>
+
+<script>
+(function(){
+
+// ----- DRAGGABLE ELEMENTS (unchanged) -----
+const circle = document.getElementById("circle");
+const panel = document.getElementById("panel");
+const closeBtn = document.getElementById("closeBtn");
+const result = document.getElementById("resultText");
+const period = document.getElementById("periodText");
+const timerText = document.getElementById("timerText");
+
+function makeDraggable(el){
+  let isDown = false, offsetX = 0, offsetY = 0;
+
+  function start(e){
+    isDown = true;
+    const rect = el.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    offsetX = clientX - rect.left;
+    offsetY = clientY - rect.top;
+  }
+
+  function move(e){
+    if(!isDown) return;
+    e.preventDefault();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    el.style.left = (clientX - offsetX) + "px";
+    el.style.top = (clientY - offsetY) + "px";
+  }
+
+  function end(){ isDown = false; }
+
+  el.addEventListener("mousedown", start);
+  el.addEventListener("touchstart", start);
+  document.addEventListener("mousemove", move);
+  document.addEventListener("touchmove", move, { passive: false });
+  document.addEventListener("mouseup", end);
+  document.addEventListener("touchend", end);
+}
+
+makeDraggable(circle);
+makeDraggable(panel);
+
+// ----- OPEN / CLOSE (circle toggles panel) -----
+circle.onclick = () => {
+  panel.style.display = "block";
+  // set panel position near circle (preserve left/top from computed style)
+  const circleLeft = circle.style.left ? circle.style.left : "60px";
+  const circleTop = circle.style.top ? parseInt(circle.style.top) : 140;
+  panel.style.left = circleLeft;
+  panel.style.top = (circleTop + 100) + "px";
+  circle.style.display = "none";
+};
+
+closeBtn.onclick = () => {
+  panel.style.display = "none";
+  circle.style.display = "flex";
+};
+
+// ----- PERIOD LOGIC (Asia/Kolkata 5:29 AM Start) -----
+let lastPeriod = "";
+
+function updatePeriod(){
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+
+  const seconds = now.getSeconds();
+  const remainingSeconds = 60 - seconds;
+
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+
+  const startHour = 5;
+  const startMinute = 29;
+
+  let elapsedMinutes = (currentHour * 60 + currentMinute) - (startHour * 60 + startMinute);
+
+  if (elapsedMinutes < 0) {
+    elapsedMinutes = 0;
+  }
+
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+
+  const periodNumber = "100001" + String(elapsedMinutes).padStart(4, "0");
+  const finalPeriod = `${yyyy}${mm}${dd}${periodNumber}`;
+
+  period.innerText = "Period: " + finalPeriod;
+  timerText.innerText = `00:${String(remainingSeconds).padStart(2, "0")}`;
+
+  if (finalPeriod !== lastPeriod) {
+    lastPeriod = finalPeriod;
+
+    const numbers = [9, 7, 6, 5, 4, 3, 2, 1, 0];
+    let currentNumber = numbers[Math.floor(Math.random() * numbers.length)];
+    let sizeType = (currentNumber >= 5) ? "BIG" : "SMALL";
+
+    result.innerText = sizeType + " " + currentNumber;
+    result.style.transform = "scale(1.2)";
+    setTimeout(() => result.style.transform = "scale(1)", 200);
+  }
+}
+
+setInterval(updatePeriod, 1000);
+updatePeriod();
+
+// ----- Ensure iframe covers full screen & background matches (already done) -----
+// Also prevent iframe from capturing clicks on the draggable circle/panel.
+// That's handled by z-index and pointer-events: auto on .modx-wrapper and .panel.
+// We also add a small style to make sure iframe doesn't block pointer events on overlay elements.
+const iframe = document.getElementById('webview-iframe');
+iframe.style.pointerEvents = 'none';   // THIS IS CRITICAL: lets circle & panel work, but iframe won't get clicks.
+// However user wants webview to be interactive normally? The request says "load full screen webview https://bdg7749.com/#/register?invitationCode=2144720673195 full html background me desgin same only webview add".
+// I interpret: keep the exact design (circle + panel) and add a fullscreen webview in background. But webview must be visible and functional.
+// Setting pointer-events:none makes it non-interactive, which is not desired for a webview. So we need a better approach.
+// Instead: set iframe to be a block element behind the overlays via z-index.
+// But we already have iframe container at same stacking context. We need to lower iframe z-index and ensure overlays have higher z-index AND are positioned.
+// Since iframe is a replaced element, we must set its z-index low and ensure overlays are above.
+
+// Quick fix: update CSS for fullscreen-webview and iframe to have lower z-index, and circle/panel have higher.
+// Also make sure overlays are not children of iframe.
+
+// Let's adjust manually via JS after load:
+iframe.style.position = 'absolute';
+iframe.style.zIndex = '1';
+circle.style.zIndex = '1000';
+panel.style.zIndex = '2000';
+
+// Also the parent container might need reset
+document.querySelector('.fullscreen-webview').style.position = 'absolute';
+document.querySelector('.fullscreen-webview').style.top = '0';
+document.querySelector('.fullscreen-webview').style.left = '0';
+document.querySelector('.fullscreen-webview').style.zIndex = '1';
+// Body should be relative to contain absolutes.
+document.body.style.position = 'relative';
+document.body.style.height = '100vh';
+document.body.style.margin = '0';
+
+// Circle and panel are already absolute, we just need to ensure they are not inside any iframe container (they are not).
+// Good to go.
+
+// Additionally, to make example.com actually clickable, we set pointer-events:auto on iframe but overlays must capture events on their area.
+// The overlays (circle, panel) are above iframe because of zIndex. Clicks on overlays work. If you click outside overlays, the iframe gets the click.
+// That's perfect: webview is interactive, overlays are draggable.
+
+iframe.style.pointerEvents = 'auto';   // revert earlier test
+
+// Ensure circle and panel are not accidentally transparent to pointer events.
+circle.style.pointerEvents = 'auto';
+panel.style.pointerEvents = 'auto';
+
+})();
+</script>
+<!-- ensure background covers full viewport, body set to 100vh -->
+<style>
+  body { height: 100vh; width: 100vw; position: relative; margin: 0; overflow: hidden; }
+  .fullscreen-webview { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+  .modx-wrapper { z-index: 1000; }
+  .panel { z-index: 2000; }
+  /* make circle and panel click-through-proof */
+  .modx-wrapper, .panel { pointer-events: auto; }
+  /* Ensure iframe content can be interacted with outside overlay areas */
+  iframe { pointer-events: auto; }
+</style>
+</body>
+</html>
